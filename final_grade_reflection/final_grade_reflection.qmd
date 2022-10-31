@@ -1,11 +1,8 @@
 ---
 title: "Final Grade Reflection"
-author: "Your Name Goes Here"
+author: "Sebastian Boksem"
 format: pdf
 editor: visual
 ---
 
-In this document, you make a data-based argument for the grade you've earned in this course. Your argument should include evidence from the supporting artifacts you've provided. 
-
-The output document should be a PDF or a Word Document, as it should be a **maximum** of 2-pages. 
----
+After taking into account the first six weeks of my STATS 331, I would consider giving myself a grade of an A-. I think this decision stems from the result in my ability to try and full learn the learning targets attached, and as a result follow in other aspects of learning such as revising my thinking and being collaborative in my group, peer reviews, and Discord. Over these last 6 weeks, I feel like I have ended up being able to successfully checkoff most learning targets. For example, with working with data, I have successfully been able to filter rows from a data base for a variety of data types. I think a clear example of this lies in my Lab 3 submission, Hip-Hop. Under the Finding Beiber question, I was able to find a single participant out of 10752 rows by different uses of grouping and filtering both factor and numbers. Not only this, in the process of filtering these factor variables, I needed to turn them into factors originally, which was accomplished and done in a program efficiency effect. Instead of creating a mutate with changing the variable to a factor for all the variables I needed to do, I instead followed to crease conciser code by including an across function (and did in the labs that followed). I feel like I also accomplished a heavy accomplishment with data by the use of different joins, as well as filtering joins.
