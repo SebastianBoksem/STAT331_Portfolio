@@ -25,7 +25,7 @@ Importing Data Set
 ```{r}
 #| execute:
 #| output: FALSE
-avocado <- read_csv(here::here("Week4", "avocado.csv"))
+avocado <- read_csv(here::here("supporting_artifacts", "Lab4", "avocado.csv"))
 ```
 
 ```{r}
