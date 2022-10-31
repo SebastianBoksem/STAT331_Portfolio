@@ -1,0 +1,72 @@
+---
+title: "Lab4: Avocado Prices"
+author: "Sebastian Boksem"
+format: 
+  html:
+    code-fold: true
+    code-summary: "Show code"
+editor: visual
+---
+
+## From Lab4
+
+**REFLECTION:**
+
+**I have removed the unnecessary output from the first code chunks. I feel like this has overall taught me more about how YAML format works within code chunks and initially I was just adding it in the first YAML above. I will now know not to add unnecessary output in future labs.**
+
+```{r}
+#| execute:
+#| output: FALSE
+library(tidyverse)
+```
+
+Importing Data Set
+
+```{r}
+#| execute:
+#| output: FALSE
+avocado <- read_csv(here::here("Week4", "avocado.csv"))
+```
+
+```{r}
+major_region <- c('Northeast', 'Southeast', 'SouthCentral', 'Plains', 'West', 'Midsouth')
+major_state <- c('NewYork', 'California', 'SouthCarolina', 'WestTexNewMexico')
+california_cities <- c('LosAngeles', 'SanDiego', 'Sacramento', 'SanFrancisco')
+total_us <- c('TotalUS')
+major_region <- data.frame(major_region)
+major_state <- data.frame(major_state)
+california_cities <- data.frame(california_cities)
+avocado_california <- avocado |>
+  semi_join(california_cities, by = c('region' = 'california_cities'))
+
+```
+
+## Challenge
+
+```{r}
+#Custom Dataset with median house price taken from Google, 2018 housing prices due to data in Avocados ending there. https://www.redfin.com/city/11203/CA/Los-Angeles etc.
+
+City <- c('Sacramento', 'LosAngeles','SanFrancisco','SanDiego')
+Price <- c(330000, 705000, 1402000, 600000)
+HousePrice <- data.frame(City, Price)
+avocado_california <- avocado |>
+  semi_join(california_cities, by = c('region' = 'california_cities'))
+
+
+avocado_california |>
+select(AveragePrice, `Total Volume`, type, region) |>
+  group_by(region, type) |>
+  summarize(med_avocado_price = median(AveragePrice)) |>
+   left_join(HousePrice, by = c("region" = "City")) |>
+   ggplot( 
+       mapping = aes(y = med_avocado_price,
+                     x = Price,
+                     color = type
+                     ) 
+                     ) + geom_point() +
+  labs(x = "Housing Price", y = "Median Avocado_Price")
+
+
+```
+
+It seems that there seems to be somewhat a positive correlation between housing prices and avocado prices. However, it is quite difficult to tell as there is not a lot of data supported from the housing prices in every city. This could also be associated with cost of living being higher, and so items like Avocados would naturally be a higher price.
