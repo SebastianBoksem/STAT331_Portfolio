@@ -1,0 +1,87 @@
+---
+title: "Lab 2: Exploring Rodents with ggplot2"
+author: "Sebastian Boksem"
+format: html
+editor: visual
+---
+
+# Lab Instructions
+
+The questions in this lab are noted with numbers and boldface. Each question will require you produce code, whether it is one line or multiple lines.
+
+This document is quite "plain," meaning it does not have any special formatting. As part of your demonstration of working with Quarto documents, I would encourage you to spice your documents up (e.g., declaring execution options, specifying how your figures should be output, formatting your code output).
+
+## Seeking Help
+
+Part of learning to program is learning from a variety of resources. Thus, I expect you will use resources beyond the textbook used for this course. However, there is an important balance between copying someone else's code and ***using their code to learn***. The [course syllabus](https://docs.google.com/document/d/1-SSRp_mXFNgYiy4uW9tlcpxDpQH4OuMqK-Hh4v5AvZI/edit?usp=sharing) defines what is considered plagiarism in this course. Essentially, if you use external resources, I want to know about it. You can "inform" me of any resources you used by pasting the link to the resource in a code comment next to where you used that resource.
+
+You are permitted and encouraged to work with your teammates as you complete the lab assignment, but you are expected to do your own work. Copying from each other is cheating, and letting people copy from you is also cheating. Don't do either of those things.
+
+# Set-up
+
+In the code chunk below load in the packages necessary for your analysis. You should only need the tidyverse and here packages for this analysis, unless you decide to use additional resources.
+
+```{r setup}
+library(tidyverse)
+library(here)
+```
+
+# Data Context
+
+The Portal Project is a long-term ecological study being conducted near Portal, AZ. Since 1977, the site has been used to study the interactions among rodents, ants and plants and their respective responses to climate. To study the interactions among organisms, we experimentally manipulate access to 24 study plots. This study has produced over 100 scientific papers and is one of the longest running ecological studies in the U.S.
+
+We will be investigating the animal species diversity and weights found within plots at the Portal study site. The dataset is stored as a comma separated value (CSV) file. Each row holds information for a single animal, and the columns represent:
+
+| Column          | Description                        |
+|-----------------|------------------------------------|
+| record_id       | Unique id for the observation      |
+| month           | month of observation               |
+| day             | day of observation                 |
+| year            | year of observation                |
+| plot_id         | ID of a particular plot            |
+| species_id      | 2-letter code                      |
+| sex             | sex of animal ("M", "F")           |
+| hindfoot_length | length of the hindfoot in mm       |
+| weight          | weight of the animal in grams      |
+| genus           | genus of animal                    |
+| species         | species of animal                  |
+| taxon           | e.g. Rodent, Reptile, Bird, Rabbit |
+| plot_type       | type of plot                       |
+
+# Reading the Data into R
+
+We have seen in the practice activity that when importing a dataframe, the columns that contain characters (i.e., text) can be coerced (=converted) into the `factor` data type. We could set **`stringsAsFactors`** to **`FALSE`** to avoid this hidden argument to convert our data type.
+
+For this lab we will use the **`readr`** package (from the `tidyverse`) to read in the data. We'll read in our data using the `read_csv()` function instead of the `read.csv()` function. This function **does not** coerce character variables to factors, a behavior that many in the R community feel is unappealing.
+
+**1. Using the `read_csv()` function and the here** package, to write the code necessary to load in the `surveys.csv` dataset. For simplicity, name the dataset `surveys`.
+
+```{r data}
+# Code for question 1! 
+surveys <- read_csv(here::here("supporting_artifacts", "Lab2Challenge", "surveys.csv"))
+```
+
+## Inspecting the Data
+
+**2. What are the dimensions of these data?**
+
+#### **REFLECTION:**
+
+**"After looking at my past challenge problem, I feel like I've notices the issues that was stated in my canvas submission. I have following that looking more into adding themes in ggplot2, and how it could help with the spacing for me density ridge. I think following this I have now managed to spread out the species names and keep it less clustered."**
+
+```{r}
+# Code for Challenge Question!! 
+library(ggridges)
+
+
+ggplot(data = surveys, 
+       mapping = aes(x =  weight,
+                    y = species)) + 
+                    geom_density_ridges(width = 0.5, panel_scaling = FALSE) + 
+                    geom_jitter(color = "blue", alpha = .01) +
+                    labs(x = "Distribution of Weight", y = "Type of Species" ) + 
+  
+  theme(axis.text.x = element_text(angle = 90), text = element_text(size = 10))
+
+
+```
