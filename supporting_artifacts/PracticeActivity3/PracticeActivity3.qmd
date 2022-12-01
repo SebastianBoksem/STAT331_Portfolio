@@ -1,10 +1,10 @@
 ---
 title: "Practice Activity 3: Data Wrangling with dplyr 🏫"
-format: html
 editor: visual
 author: Sebastian Boksem
 format:
   html:
+    self-contained: true
     code-fold: TRUE
 ---
 
@@ -152,7 +152,7 @@ Clues:
 
 8.  Of the three options remaining at this step, Ephelia will attend the cheapest one.
 
-```{r combine}
+```{r combine2}
 colleges_elphelia <- colleges |>
   filter(REGION == 7) |>
   mutate(ADM_RATE= as.numeric(ADM_RATE)) |>

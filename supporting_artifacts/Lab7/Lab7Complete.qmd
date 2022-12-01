@@ -1,7 +1,9 @@
 ---
 title: "Lab7Complete"
 author: "Sebastian Boksem"
-format: html
+format:
+  html:
+    self-contained: true
 editor: visual
 ---
 

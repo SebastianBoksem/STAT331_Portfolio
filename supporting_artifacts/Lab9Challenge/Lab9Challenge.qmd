@@ -1,7 +1,9 @@
 ---
 title: "Lab 9 Challenge"
 author: "Sebastian Boksem"
-format: html
+format:
+  html:
+    self-contained: true
 editor: visual
 ---
 

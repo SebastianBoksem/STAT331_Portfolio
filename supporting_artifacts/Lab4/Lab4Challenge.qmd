@@ -1,8 +1,9 @@
 ---
 title: "Lab4: Avocado Prices"
 author: "Sebastian Boksem"
-format: 
+format:
   html:
+    self-contained: true
     code-fold: true
     code-summary: "Show code"
 editor: visual

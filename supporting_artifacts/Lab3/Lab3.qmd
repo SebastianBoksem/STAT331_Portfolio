@@ -1,7 +1,9 @@
 ---
 title: "Lab3: Hip-Hop"
 author: "Sebastian Boksem"
-format: html
+format:
+  html:
+    self-contained: true
 editor: visual
 ---
 
