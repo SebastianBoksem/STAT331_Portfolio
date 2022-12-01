@@ -1,0 +1,143 @@
+---
+title: "Lab5"
+author: "Sebastian Boksem"
+format: html
+editor: visual
+---
+
+## Revisiting Lab2
+
+```{r}
+#| execute:
+#| output: FALSE
+library(tidyverse)
+library(forcats)
+surveys <- read_csv(here::here("supporting_artifacts", "Lab5", "surveys.csv"))
+```
+
+## 1. Basic Graphs
+
+```{r}
+ggplot(data = surveys, 
+       mapping = aes(x = weight,
+                     y = species,
+                     )) + geom_jitter(color = "salmon") +
+  geom_boxplot(alpha = 1, outlier.shape = NA) 
+```
+
+Descending Order:
+
+```{r}
+surveys |>
+  ggplot(aes(weight, fct_reorder(species, weight))) +
+  geom_jitter(color = "salmon") +
+  geom_boxplot()
+```
+
+With changing Y Axis:
+
+```{r}
+surveys |>
+  ggplot(aes(x = weight,
+             y = fct_reorder(species, weight))) +
+  geom_jitter(color = "salmon") +
+  geom_boxplot() +
+  labs(title = "Weight by Rodent Species Type" , x = "", y = "")
+```
+
+## 2. Times-Series Plot
+
+```{r}
+surveys |>
+  ggplot(aes(x = year,
+             y = weight,
+             color = genus)) +
+  geom_line()
+```
+
+Calculating and plotting mean weight for each year:
+
+```{r}
+surveys |>
+  group_by(genus, year) |>
+  summarize(meanweight = mean(weight)) |>
+  ggplot(aes(x = year,
+             y = meanweight,
+             color = genus)) +
+  geom_line()
+  
+```
+
+Reordering the lines so weight goes in descending order:
+
+```{r}
+surveys |>
+  group_by(genus, year) |>
+  summarize(meanweight = mean(weight)) |>
+  ggplot(aes(x = year,
+             y = meanweight,
+             color = fct_reorder2(genus, year, meanweight))) +
+  geom_line()
+  
+
+
+
+```
+
+Giving new label and y-axis change:
+
+```{r}
+surveys |>
+  group_by(genus, year) |>
+  summarize(meanweight = mean(weight)) |>
+  ggplot(aes(x = year,
+             y = meanweight,
+             color = fct_reorder2(genus, year, meanweight))) +
+  geom_line() +
+  labs(title = "Yearly Weight by Genus Type" , x = "", y = "", color = "Genus Type")
+```
+
+## 3. Captures over the Week:
+
+```{r}
+surveys |>
+  group_by(day_of_week) |>
+  count() |>
+  drop_na() |>
+  rename("Count" = n) |>
+  ggplot(aes(x = factor(day_of_week),
+             y = Count)) +
+  geom_col() +
+  labs(title = "Number of Rodents Captured Throughout the Week", x = "", y = "")
+```
+
+With the use of days of the week factor:
+
+```{r}
+week_levels <- c('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')
+surveys |>
+  group_by(day_of_week) |>
+  count() |>
+  drop_na() |>
+  rename("Count" = n) |>
+    ggplot(aes(x = factor(day_of_week, levels = week_levels),
+               y = Count)) +
+    geom_col() +
+    labs(title = "Number of Rodents Captured Throughout the Week", x = "", y = "")
+```
+
+Collapsing into weekend and weekday level:
+
+```{r}
+surveys |>
+    mutate(day_of_week = fct_collapse(day_of_week, 
+                                    Weekday = c("Mon", "Tue", "Wed", "Thu", "Fri"),
+                                    Weekend = c("Sat", "Sun"))) |>
+  count(day_of_week) |>
+  drop_na() |>
+  rename("Count" = n) |>
+  ggplot(aes(x = day_of_week,
+             y = Count)) +
+  geom_col() +
+  labs(title = "Number of Rodents Captured Throughout the Week", x = "", y = "")
+```

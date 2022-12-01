@@ -1,0 +1,160 @@
+---
+title: "Lab 9"
+author: "Sebastian Boksem"
+format: html
+editor: visual
+---
+
+## Libraries:
+
+```{r packages}
+#| include: false
+library(tidyverse)
+
+```
+
+## Importing Data Set:
+
+```{r}
+statesnames_a <- read.csv(here::here("supporting_artifacts", "Lab9", "StateNames_A.csv"))
+statesnames_a <- statesnames_a |>
+  rename("Sex" = "Gender"
+         )
+```
+
+## Summarizing and Visualizing:
+
+### 3.1
+
+```{r}
+statesnames_a |> 
+  pivot_wider(names_from = Sex, values_from = Count) |>
+  filter(Name == 'Allison') |>
+mutate(
+    across(c('F', 'M'), ~replace_na(.x, 0))) |>
+  group_by(State) |>
+  summarize(across(F:M, sum))
+```
+
+### 3.2
+
+```{r}
+statesnames_a |> 
+  filter(Sex == 'F') |>
+  pivot_wider(names_from = Sex, values_from = Count) |>
+  filter(Name == 'Allison')  |>
+  group_by(State) |>
+  summarize(sum(F)) 
+```
+
+### 3.3
+
+```{r}
+statesnames_a |> 
+  filter(Name == 'Allison')  |>
+  group_by(Year) |>
+  summarize(sum(Count)) |>
+  rename("Number" = `sum(Count)`) |>
+  ggplot(mapping = aes(x = Year, 
+                       y = `Number`)) + 
+  geom_line() +
+  labs(title = "Popularity of the Name Allison Over Time", x = "", y =  "")
+```
+
+## Modeling the Number of Allisons
+
+```{r}
+statesnames_a |> 
+  filter(Name == 'Allison')  |>
+  group_by(Year) |>
+  summarize(sum(Count)) |>
+  rename("Number" = `sum(Count)`) |>
+   lm(Number ~ Year, data = _)
+```
+
+```{r}
+#| warning: FALSE
+statesnames_a |> 
+  filter(Name == 'Allison')  |>
+  group_by(Year) |>
+  summarize(sum(Count)) |>
+  rename("Number" = `sum(Count)`) |>
+   ggplot(aes(x = Number, y = `Year`)) +
+  geom_point() +
+  stat_smooth(method = "lm") + 
+  labs(x = "Number", 
+       y = "Year")
+```
+
+#### Estimated Regression:
+
+#### Number of Allisons (hat/prediction) = 209815.1 - 101.6 (Year)
+
+### Residuals of Model
+
+```{r}
+
+statesnames_a |> 
+  filter(Name == 'Allison')  |>
+  group_by(Year) |>
+  summarize(sum(Count)) |>
+  rename("Number" = `sum(Count)`) |>
+   lm(Number ~ Year, data = _) |>
+  broom::augment() |> 
+  ggplot(mapping = aes(y = .resid, x = .fitted)) +
+  geom_point()
+```
+
+#### From the graph, it seems like initially the residuals are positive, meaning the predictions overshot the actual model. However, there seems to be a shift in the middle where the regression underpredicts the model and then returns to over.
+
+### Conclusion:
+
+#### It seems that the name Allison seems to be getting less popular over time. However there does seem to be some sort of plateau in the recent years so perhaps there could be a chance that it will not continue to get more unpopular. However where it stands, the regression also does predict that it will continue to lose 101.6 names per year.
+
+## Spelling by State
+
+```{r}
+statesnames_a |> 
+  filter(Name == 'Allan' | Name ==  'Alan' | Name == 'Allen',
+         Sex == "M")  |>
+  group_by(Year, Name) |>
+  summarize(sum(Count)) |>
+  rename("Count" = `sum(Count)`) |>
+  ggplot(mapping = aes(x = Year, y = Count, color = Name)) + geom_line()
+  
+  
+```
+
+## Pennsylvania
+
+### Values:
+
+```{r}
+statesnames_a |> 
+  filter(Name == 'Allan' | Name ==  'Alan' | Name == 'Allen',
+         State == 'PA' | State == 'CA',
+         Year == 2000) |>
+  group_by(Name, State) |>
+  summarize(sum(Count)) |>
+  rename("Count" = `sum(Count)`) |>
+  pivot_wider(names_from = Name, values_from = Count)
+
+```
+
+### Percents:
+
+```{r}
+statesnames_a |> 
+  filter(Name == 'Allan' | Name ==  'Alan' | Name == 'Allen',
+         State == 'PA' | State == 'CA',
+         Year == 2000) |>
+  group_by(Name, State) |>
+  summarize(sum(Count)) |>
+  rename("Count" = `sum(Count)`) |>
+  pivot_wider(names_from = Name, values_from = Count) |>
+  mutate(Total = Alan + Allan + Allen,
+         Alan = Alan / Total,
+         Allan = Allan / Total,
+         Allen = Allen / Total) |>
+  select(-Total)
+```

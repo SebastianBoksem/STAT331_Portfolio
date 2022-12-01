@@ -18,7 +18,7 @@ library(tidyverse)
 ```{r}
 #| execute:
 #| output: FALSE
-BlackfootFish <- read_csv(here::here("Week7", "BlackfootFish.csv"))
+BlackfootFish <- read_csv(here::here("supporting_artifacts", "Lab7", "BlackfootFish.csv"))
 
 ```
 

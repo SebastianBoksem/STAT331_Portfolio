@@ -1,0 +1,108 @@
+---
+title: "Lab 9 Challenge"
+author: "Sebastian Boksem"
+format: html
+editor: visual
+---
+
+## Libraries:
+
+```{r packages}
+#| include: false
+library(tidyverse)
+library(knitr)
+library(DT)
+```
+
+## Importing Data Set:
+
+```{r}
+statesnames_a <- read.csv(here::here("supporting_artifacts", "Lab9Challenge", "StateNames_A.csv"))
+statesnames_a <- statesnames_a |>
+  rename("Sex" = "Gender"
+         )
+statesnames_a |>
+  datatable(filter = 'bottom', options = list(pageLength = 100)) |>
+  formatStyle(c('Name', 'Year', 'Sex', 'State', 'Count'),  color = 'red', backgroundColor = 'salmon', fontWeight = 'bold')
+  
+```
+
+## Summarizing and Visualizing:
+
+### 3.1 (Also "spicing" up this one)
+
+```{r}
+statesnames_a |> 
+  pivot_wider(names_from = Sex, values_from = Count) |>
+  filter(Name == 'Allison') |>
+mutate(
+    across(c('F', 'M'), ~replace_na(.x, 0))) |>
+  group_by(State) |>
+  summarize(across(F:M, sum)) |>
+  rename("Number of Male-assigned Babies" = "M",
+         "Number of Female-assigned Babies" = "F") |>
+  datatable(
+  head(statesnames_a),
+  caption = htmltools::tags$caption(
+    style = 'caption-side: bottom; text-align: center;',
+    'Table 1: ', htmltools::em('The Number of babies are mostly Female-assigned ') 
+  )
+) |>   formatStyle('State',  color = 'blue', backgroundColor = 'green', fontWeight = 'bold')
+```
+
+### 3.2
+
+```{r}
+statesnames_a |> 
+  filter(Sex == 'F') |>
+  pivot_wider(names_from = Sex, values_from = Count) |>
+  filter(Name == 'Allison')  |>
+  group_by(State) |>
+  summarize(sum(F)) |>
+    rename(
+         "Number of Female-assigned Babies" = "sum(F)") |>
+  kable()
+```
+
+## Pennsylvania
+
+### Values Challenge:
+
+```{r}
+statesnames_a |> 
+  filter(Name == 'Allan' | Name ==  'Alan' | Name == 'Allen',
+         State == 'PA' | State == 'CA',
+         Year == 2000) |>
+  group_by(Name, State) |>
+  summarize(sum(Count)) |>
+  rename("Count" = `sum(Count)`) |>
+  pivot_wider(names_from = Name, values_from = Count) |>
+    rename("# of Alan" = "Alan",
+         "# of Allan" = "Allan",
+         "# of Allen" =  "Allen") |>
+  kable()
+
+
+```
+
+### Percents Challenge:
+
+```{r}
+statesnames_a |> 
+  filter(Name == 'Allan' | Name ==  'Alan' | Name == 'Allen',
+         State == 'PA' | State == 'CA',
+         Year == 2000) |>
+  group_by(Name, State) |>
+  summarize(sum(Count)) |>
+  rename("Count" = `sum(Count)`) |>
+  pivot_wider(names_from = Name, values_from = Count) |>
+  mutate(Total = Alan + Allan + Allen,
+         Alan = Alan / Total,
+         Allan = Allan / Total,
+         Allen = Allen / Total) |>
+      rename("# of Alan" = "Alan",
+         "# of Allan" = "Allan",
+         "# of Allen" =  "Allen") |>
+  select(-Total) |>
+  kable()
+```
