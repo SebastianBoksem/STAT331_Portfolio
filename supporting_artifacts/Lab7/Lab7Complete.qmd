@@ -1,0 +1,131 @@
+---
+title: "Lab7Complete"
+author: "Sebastian Boksem"
+format: html
+editor: visual
+---
+
+## 
+
+```{r}
+#| execute:
+#| output: FALSE
+library(tidyverse)
+```
+
+## Importing Data Set
+
+```{r}
+#| execute:
+#| output: FALSE
+BlackfootFish <- read_csv(here::here("Week7", "BlackfootFish.csv"))
+
+```
+
+## Summarize Missing Data
+
+## Finding Any Variables With Missing Columns
+
+```{r}
+BlackfootFish |>
+   summarize(
+     across(trip:species, is.na)
+        ) |>
+  summarize(across(trip:species, sum))
+ 
+```
+
+Weight would be the only variable with NA values. It contains 1796 observations.
+
+## Visualizing Missing Data
+
+```{r}
+#| warning: FALSE
+BlackfootFish |>
+   mutate(checkna = is.na(weight)
+   ) |>
+  group_by(year, section, trip) |>
+  summarize(sum(checkna)) |>
+  rename(missing = `sum(checkna)`) |>
+  mutate(
+    trip = as.factor(trip)
+  ) |>
+  ggplot() +
+  geom_col(mapping = aes(x = trip,y = missing, fill = section)) +
+  facet_grid(. ~ year) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(
+       x = "Trip Number",
+       y = "Number of Missing Weights",
+       fill = "Section")
+
+```
+
+From this vizualization, it seems like Johnsrud is the responsible section for the most missing data. Years 1990, 1991, and 2000 seem to be most notable in the losing of data. The biggest difference is that trip 2 seems to be the most frequent in missing data.
+
+## Writing a Function
+
+```{r}
+rescale_01 <- function(y){
+  range <- range(y)
+  y_scaled <- (y - range[1])/(range[2]-range[1])
+  return(y_scaled)
+}
+```
+
+## Adding Stops
+
+```{r}
+rescale_01 <- function(y){
+  stopifnot(is.numeric(y),
+            length(y) > 1
+            )
+  range <- range(y, na.rm = TRUE)
+  y_scaled = (y - range[1])/(range[2]-range[1])
+  return(y_scaled)
+}
+```
+
+## Testing
+
+```{r}
+x <- c(1:25, NA)
+range(rescale_01(x), na.rm = TRUE)
+
+```
+
+# **REFLECTION:**
+
+**From the previous attempt, I changed the histogram from the normal one in base R into the ggplot one that utilizes a newly created data set for the two different lengths. I have also in addition have changed the layout of the quarto chunk allowing the two graphs to be shown side by side. I feel like this revision has taught me that histograms exist within ggplot and seem to be much easier to use than the one in base R. For future use I will try and utilize it more as an explanation/visualization for single variable graphs. I feel like I have also learned more about how to format Quarto chunks and as a result I think i will format any multiple graphs that are created in the same chunk to be side by side.**
+
+## Performing a More Difficult Test
+
+```{r}
+#| warning: FALSE
+#| layout-ncol: 2
+length <- BlackfootFish$length
+Rescaled_Length <- rescale_01(length)
+Comparison_lengths <- data.frame(length, Rescaled_Length)
+Comparison_lengths |>
+  ggplot(mapping = aes(x = length)) +
+  geom_histogram() + 
+  labs(x = 'Original Length', y = 'Count')
+Comparison_lengths |>
+  ggplot(mapping = aes(x = Rescaled_Length)) +
+  geom_histogram()  + 
+  labs(x = 'Resclaed Length', y = 'Count')
+```
+
+```{r}
+rescale_column <- function(df, c){
+  stopifnot(is.data.frame(df))
+           
+  df |>
+    dplyr::mutate(
+      across(
+        .cols = {{c}},
+        .fns = rescale_01
+))
+}
+rescale_column(BlackfootFish, c('length', 'weight'))
+```

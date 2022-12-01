@@ -1,0 +1,53 @@
+---
+title: "practice"
+format: html
+editor: visual
+---
+
+```{r}
+{library(tidyverse)}
+library(readxl)
+library(naniar)
+#Importing Spending Data
+military <- readxl::read_xlsx(here::here("supporting_artifacts", "PracticeActivityWeek4", "gov_spending_per_capita.xlsx"), 
+                                        sheet = "Share of Govt. spending",
+                              skip = 7,
+                              n_max = 190
+                            )
+military_clean <- military |>
+  mutate(across(everything(),
+                .fns = na_if,
+                y = ". ."),
+         across(everything(),
+                .fns = na_if,
+                y = "xxx")
+  )
+#Cleaning Military Spending Data
+military_clean <- military_clean |>
+  mutate(across(.cols = "1988":"2019",
+          as.numeric)
+         )
+#Importing regions
+cont_region <- read_xlsx(here::here("supporting_artifacts", "PracticeActivityWeek4", "gov_spending_per_capita.xlsx"), 
+                      sheet = "Regional totals", 
+                      skip = 14) |> 
+  filter(Region != "World total (including Iraq)", 
+         Region != "World total (excluding Iraq)")
+
+#Anti-joins to see what is not included 
+military_clean <- military_clean |> 
+  anti_join(cont_region, by = c("Country" = "Region"))
+
+#Pivoting
+ military_clean1 <- military_clean |>
+  pivot_longer(`1988`:`2019`,
+            names_to = "Year",
+            values_to = "Spending")
+#Visualizing Spending
+ military_clean1 |>
+   ggplot( 
+       mapping = aes(y = Year,
+                     x = Spending
+                     ) 
+                     ) + geom_boxplot()
+```

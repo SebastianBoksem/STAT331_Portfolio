@@ -1,0 +1,164 @@
+---
+title: "Lab 8"
+author: "Sebastian Boksem"
+format: html
+editor: visual
+---
+
+# From Practice Activity
+
+## Libraries:
+
+```{r packages}
+#| include: false
+library(dplyr)
+library(glue)
+library(stringr)
+library(purrr)
+```
+
+## Importing Data Set:
+
+```{r}
+xmas <- read.csv("https://www.dropbox.com/s/e584pryn8evm1gz/xmas.csv?dl=1")
+```
+
+## Pluralize Function:
+
+```{r pluralize-function}
+# Function that takes a noun and makes it plural
+# Arguments -- gift -- A string or vector of strings
+# Return -- A string or vector of strings with the pluralized words
+
+pluralize_gift <- function(gift){
+gift <- case_when(str_detect(gift, "y$") ~ str_replace(gift, "y$", "ies"),
+            str_detect(gift, "oo") ~ str_replace(gift, "oo", "ee"),
+            TRUE ~ str_c(gift, "s"))
+return(gift)
+}
+
+
+```
+
+## Phrase Function
+
+```{r phrase-function}
+make_phrase <- function(num_word, item, verb, adjective, location) {
+  
+  ## Step 1: Replace NAs with blank strings
+  verb <- str_replace_na(verb, "")
+  num_word <- str_replace_na(num_word, "")
+  adjective <- str_replace_na(adjective, "")
+  location <- str_replace_na(location, "")
+  ## Step 2: If the day is larger than 1, the items need pluralized! 
+  item <- case_when(num_word == 'one' ~ item,
+                    TRUE ~ pluralize_gift(item))
+  ## Step 3: If the word starts with a vowel, add "an" to the beginning
+  num_word <- case_when(num_word == 'one' ~ 'a',
+                        TRUE ~ num_word)
+  ## Step 4: Glue all of the pieces together! 
+  check <- glue::glue("{num_word} {adjective} {item} {verb} {location}")
+  check <- str_replace_all(check, "\\s{2,}", " ")
+return(check)
+}
+```
+
+### Testing:
+
+```{r pluralize-test}
+
+## This will work if your function is vectorized!
+pluralize_gift(xmas$Gift.Item)
+
+## This will work if your function is not vectorized!
+purrr::map_chr(xmas$Gift.Item, pluralize_gift)
+
+```
+
+```{r}
+xmas2 <- xmas %>%
+  mutate(day.num = as.character(english::english(Day)
+                                ), 
+    Full.Phrase = pmap_chr(
+      list(
+           num_word = day.num,
+           item = Gift.Item,
+           verb = Verb,
+           adjective = Adjective,
+           location = Location),
+      make_phrase
+      )
+  )
+```
+
+# Lab 8:
+
+## Sing_line():
+
+```{r}
+sing_line <- function(dataset, line, phrase_col){
+stopifnot(is.data.frame(dataset),
+          is.numeric(line))
+  
+  
+num_word <- english::ordinal(line)
+intro <- glue::glue("On the {num_word} day of Christmas, my true love sent to me:")  
+phrases <- dataset |>
+      pull( {{phrase_col}} )
+
+
+
+
+specific_phrases <- function(n){
+  if (n == 2) {phrase_for_day <- glue::glue('{ phrases[ {n} ] }and ')}
+  else {phrase_for_day <- glue::glue('{ phrases[ {n} ] }')}
+  return(phrase_for_day)
+}              
+  
+body <- glue::glue("{map_chr(line:1, specific_phrases)}")
+body <- str_flatten(body)
+
+final <- glue::glue("{intro} \n {body} ")
+
+return(
+final
+)
+}
+
+```
+
+# Testing:
+
+## Small Test:
+
+```{r}
+xmas2 |>
+sing_line(line = 2, phrase_col = Full.Phrase)
+```
+
+## A Larger Test:
+
+```{r}
+map_chr(1:12, ~ sing_line(xmas2, .x, Full.Phrase)) |>
+  str_c(collapse = "\n") |>
+  cat()
+```
+
+## Full Song:
+
+```{r}
+xmas2 <- xmas |>
+  mutate(
+    day.num = as.character(english::english(Day)), 
+    Full.Phrase = pmap_chr(.l = list(num_word = day.num, 
+                                     item = Gift.Item, 
+                                     verb = Verb, 
+                                     adjective = Adjective, 
+                                     location = Location), 
+                           .f = make_phrase)
+  )
+
+map_chr(1:12, ~sing_line(xmas2, .x, Full.Phrase)) |>
+  str_c(collapse = "\n") |>
+  cat()
+```
